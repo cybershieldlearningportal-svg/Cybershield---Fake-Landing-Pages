@@ -5,5 +5,15 @@ import { ReactNode } from "react";
 export const dynamic = "force-dynamic";
 
 export default function PageLayout({ children }: { children: ReactNode }) {
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <p
+        className="fixed bottom-0 left-0 right-0 text-center text-[9px] text-zinc-500 bg-white/80 dark:bg-black/80 py-1"
+        style={{ fontFamily: "sans-serif" }}
+      >
+        This site is for learning purposes only.
+      </p>
+    </>
+  );
 }
