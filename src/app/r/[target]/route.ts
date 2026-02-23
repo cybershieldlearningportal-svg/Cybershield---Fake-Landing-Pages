@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * Redirect /r/[target] to /login/[target] on this app.
- * Links in seed use https://www-website.vercel.app/r/amazon (etc.);
- * this redirects to https://www-website.vercel.app/login/amazon.
+ * Redirect /r/[target] to /[target] on this app.
+ * Links in seed use https://www-login.vercel.app/r/amazon (etc.);
+ * this redirects to https://www-login.vercel.app/amazon.
  */
 export async function GET(
   request: NextRequest,
@@ -14,6 +14,6 @@ export async function GET(
   if (!slug || typeof slug !== "string") {
     return NextResponse.redirect(new URL("/", origin), 302);
   }
-  const url = `${origin}/login/${encodeURIComponent(slug)}`;
+  const url = `${origin}/${encodeURIComponent(slug)}`;
   return NextResponse.redirect(url, 302);
 }

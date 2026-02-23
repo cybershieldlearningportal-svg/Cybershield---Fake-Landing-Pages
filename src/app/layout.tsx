@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+// Force dynamic rendering for all fake landing pages to avoid oversized
+// static/ISR payloads (e.g. Leopards template exceeds Vercel's 19 MB limit).
+export const dynamic = "force-dynamic";
+
 const educationalOnly =
   "Educational purpose only. Authorized phishing simulation for security awareness training. Not a real brand or service.";
 
@@ -43,7 +47,15 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className="min-h-screen antialiased">{children}</body>
+      <body className="min-h-screen antialiased">
+        {children}
+        <p
+          className="fixed bottom-0 left-0 right-0 text-center text-[9px] text-zinc-500 bg-white/80 dark:bg-black/80 py-1"
+          style={{ fontFamily: "sans-serif" }}
+        >
+          This site is for learning purposes only.
+        </p>
+      </body>
     </html>
   );
 }
