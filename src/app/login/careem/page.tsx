@@ -2,7 +2,7 @@ import { getFakeLandingContent } from "@/lib/fakeLandingPage";
 
 export const metadata = {
   title: "Careem",
-  description: "Phishing simulation landing page",
+  description: "Educational purpose only. Authorized phishing simulation for security awareness training.",
 };
 
 export default function CareemFakePage() {
