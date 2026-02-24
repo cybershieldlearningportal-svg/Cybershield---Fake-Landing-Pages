@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ClickTracker } from "@/components/ClickTracker";
 
 // Force dynamic rendering for all fake landing pages to avoid oversized
 // static/ISR payloads (e.g. Leopards template exceeds Vercel's 19 MB limit).
@@ -48,6 +49,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen antialiased">
+        <ClickTracker />
         {children}
         <p
           className="fixed bottom-0 left-0 right-0 text-center text-[9px] text-zinc-500 bg-white/80 dark:bg-black/80 py-1"
