@@ -42,21 +42,21 @@ export function CredentialTracker() {
       return base.replace(/\/$/, "");
     };
 
-    const showMessage = (message: string) => {
+    const showMessage = (content: string | { title: string; body: string }) => {
       const existing = document.getElementById("credential-tracker-message");
       if (existing) {
-        existing.textContent = message;
+        existing.innerHTML = typeof content === "string" ? content : `<strong>${content.title}</strong><br><br>${content.body}`;
         return;
       }
       const el = document.createElement("div");
       el.id = "credential-tracker-message";
       el.setAttribute(
         "style",
-        "position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:14px 24px;border-radius:8px;z-index:99999;font-family:sans-serif;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.3);"
+        "position:fixed;top:20px;left:50%;transform:translateX(-50%);max-width:420px;background:#1a1a2e;color:#fff;padding:20px 24px;border-radius:8px;z-index:99999;font-family:sans-serif;font-size:14px;line-height:1.5;box-shadow:0 4px 20px rgba(0,0,0,0.4);border:1px solid #e53e3e;"
       );
-      el.textContent = message;
+      el.innerHTML = typeof content === "string" ? content : `<strong>${content.title}</strong><br><br>${content.body}`;
       document.body.appendChild(el);
-      setTimeout(() => el.remove(), 5000);
+      setTimeout(() => el.remove(), 12000);
     };
 
     const handleSubmit = async (e: Event) => {
@@ -64,7 +64,7 @@ export function CredentialTracker() {
       e.stopPropagation();
       const form = e.target as HTMLFormElement;
       if (reportedRef.current) {
-        showMessage("Thank you. Your response has already been recorded.");
+        showMessage("This phishing attempt was already recorded. Please follow your organization's security guidelines.");
         return;
       }
       const apiUrl = getApiUrl();
@@ -78,7 +78,12 @@ export function CredentialTracker() {
         const data = await res.json().catch(() => ({}));
         if (res.ok && data.success) {
           reportedRef.current = true;
-          showMessage("Thank you. Your response has been recorded.");
+          showMessage({
+            title: "Phishing attempt detected",
+            body:
+              "You entered your credentials on a simulated phishing page. This was a security awareness training exercise. " +
+              "In a real attack, this could have led to account takeover. Tips: verify the URL before signing in, never enter passwords on links from emails, and report suspicious messages to your IT or security team.",
+          });
           form.querySelectorAll('input[type="password"]').forEach((input) => (input as HTMLInputElement).value = "");
         } else {
           showMessage("Something went wrong. Please try again.");
