@@ -1,5 +1,4 @@
 import { getFakeLandingContent } from "@/lib/fakeLandingPage";
-import { DropboxLoginForm } from "@/components/DropboxLoginForm";
 
 export const metadata = {
   title: "Dropbox",
@@ -7,12 +6,12 @@ export const metadata = {
 };
 
 export default function DropboxFakePage() {
-  const { headAssets } = getFakeLandingContent("Dropbox Template.html");
+  const { headAssets, bodyContent } = getFakeLandingContent("Dropbox Template.html");
 
   return (
     <div className="min-h-screen w-full" suppressHydrationWarning>
       <div dangerouslySetInnerHTML={{ __html: headAssets }} />
-      <DropboxLoginForm />
+      <div dangerouslySetInnerHTML={{ __html: bodyContent }} />
     </div>
   );
 }
