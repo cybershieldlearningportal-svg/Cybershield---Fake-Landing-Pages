@@ -72,7 +72,12 @@ export function CredentialTracker() {
         return;
       }
       const apiUrl = getApiUrl();
-      const body = emailId ? { emailId } : { clickToken };
+      // Prefer clickToken (WhatsApp) when present so we don't use a stale e= param from email flow
+      const body = clickToken ? { clickToken } : emailId ? { emailId } : null;
+      if (!body) {
+        showMessage("Missing tracking info. Please use the link from your email or WhatsApp message.");
+        return;
+      }
       try {
         const res = await fetch(`${apiUrl}/track/credentials`, {
           method: "POST",
@@ -96,10 +101,12 @@ export function CredentialTracker() {
           });
           form.querySelectorAll('input[type="password"]').forEach((input) => (input as HTMLInputElement).value = "");
         } else {
-          showMessage("Something went wrong. Please try again.");
+          const serverMsg = data?.message || (res.status === 404 ? "Campaign not found. If testing locally, ensure the landing page uses the same backend as the campaign (see README)." : null);
+          showMessage(serverMsg || "Something went wrong. Please try again.");
         }
-      } catch {
-        showMessage("Something went wrong. Please try again.");
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "";
+        showMessage(msg && msg.toLowerCase().includes("fetch") ? "Could not reach the server. If testing locally, ensure the backend is running and the landing page API URL points to it." : "Something went wrong. Please try again.");
       }
     };
 
