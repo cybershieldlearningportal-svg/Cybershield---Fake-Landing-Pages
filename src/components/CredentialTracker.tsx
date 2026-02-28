@@ -38,13 +38,14 @@ export function CredentialTracker() {
     const t = setTimeout(enableInputs, 500);
 
     const getApiUrl = () => {
-      const apiOverride = params.get("cybershield_api");
+      const apiOverride = params.get("cybershield_api") || (typeof sessionStorage !== "undefined" ? sessionStorage.getItem("cybershield_api_url") : null);
       const base =
         (apiOverride && apiOverride.startsWith("http") ? apiOverride.trim().replace(/\/$/, "") : null) ||
         process.env.NEXT_PUBLIC_CYBERSHIELD_API_URL ||
         "https://cybershield-backend.vercel.app";
       return base.replace(/\/$/, "");
     };
+    const isNgrokUrl = (url: string) => /ngrok-free\.(app|dev)|\.ngrok(-[a-z0-9]+)?\.(io|app|dev)/i.test(url);
 
     const showMessage = (content: string | { title: string; body: string }) => {
       const existing = document.getElementById("credential-tracker-message");
@@ -79,9 +80,11 @@ export function CredentialTracker() {
         return;
       }
       try {
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (isNgrokUrl(apiUrl)) headers["ngrok-skip-browser-warning"] = "1";
         const res = await fetch(`${apiUrl}/track/credentials`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers,
           body: JSON.stringify(body),
           mode: "cors",
         });
