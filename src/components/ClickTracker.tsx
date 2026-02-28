@@ -17,6 +17,11 @@ export function ClickTracker() {
     const ct = params.get("ct");
     if (!ct) return;
 
+    // Persist for CredentialTracker (landing page may strip ?ct= from URL after recording click)
+    try {
+      sessionStorage.setItem("cybershield_wa_ct", ct);
+    } catch (_) {}
+
     const apiOverride = params.get("cybershield_api");
     const baseUrl =
       (apiOverride && apiOverride.startsWith("http") ? apiOverride.trim().replace(/\/$/, "") : null) ||

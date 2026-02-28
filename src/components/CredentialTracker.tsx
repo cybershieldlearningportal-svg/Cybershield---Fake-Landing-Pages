@@ -4,10 +4,12 @@ import { useEffect, useRef } from "react";
 
 /**
  * Tracks when user submits credentials on a fake landing page (e.g. Dropbox login).
- * Intercepts form submit, sends emailId to backend to record "credentials entered", then shows a message.
+ * Intercepts form submit, sends emailId (email phishing) or clickToken (WhatsApp phishing) to backend
+ * to record "credentials entered", then shows a message.
  * Does NOT send or store actual credentials – only that the user submitted the form.
  *
- * Requires ?e=EMAIL_ID in the URL (appended by backend when redirecting from track/click).
+ * Email: requires ?e=EMAIL_ID in the URL (appended by backend when redirecting from track/click).
+ * WhatsApp: requires ?ct=CLICK_TOKEN in the URL (appended to landing link when sending WhatsApp message).
  * Backend: set NEXT_PUBLIC_CYBERSHIELD_API_URL (e.g. https://cybershield-backend.vercel.app).
  */
 export function CredentialTracker() {
@@ -17,7 +19,9 @@ export function CredentialTracker() {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const emailId = params.get("e");
-    if (!emailId) return;
+    // WhatsApp: ct may have been stripped from URL by ClickTracker; fallback to sessionStorage
+    const clickToken = params.get("ct") || (typeof sessionStorage !== "undefined" ? sessionStorage.getItem("cybershield_wa_ct") : null);
+    if (!emailId && !clickToken) return;
 
     // Make all inputs in the page functional (template may have disabled/readonly)
     const enableInputs = () => {
@@ -68,16 +72,22 @@ export function CredentialTracker() {
         return;
       }
       const apiUrl = getApiUrl();
+      const body = emailId ? { emailId } : { clickToken };
       try {
         const res = await fetch(`${apiUrl}/track/credentials`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ emailId }),
+          body: JSON.stringify(body),
           mode: "cors",
         });
         const data = await res.json().catch(() => ({}));
         if (res.ok && data.success) {
           reportedRef.current = true;
+          if (clickToken && typeof sessionStorage !== "undefined") {
+            try {
+              sessionStorage.removeItem("cybershield_wa_ct");
+            } catch (_) {}
+          }
           showMessage({
             title: "Phishing attempt detected",
             body:
